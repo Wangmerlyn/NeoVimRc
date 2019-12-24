@@ -20,7 +20,21 @@ set incsearch
 set ignorecase
 set smartcase
 set termguicolors
-set foldmethod=syntax
+set noexpandtab
+set autoindent
+set list
+set listchars=tab:\|\ ,trail:▫
+set scrolloff=4
+set ttimeoutlen=0
+set notimeout
+set viewoptions=cursor,folds,slash,unix
+set indentexpr=
+set foldmethod=indent
+set foldlevel=99
+set foldenable
+set shortmess+=c
+set formatoptions-=tc
+"set foldmethod=syntax
 noremap <LEADER>n :nohlsearch<CR>
 map S :w<CR>
 map Q :q<CR>
@@ -31,12 +45,30 @@ noremap <c-k> 5k
 set ttyfast 		"make scrolling faster
 set lazyredraw 		"same as above
 set visualbell
-
+silent !mkdir -p ~/.config/nvim/tmp/backup
+silent !mkdir -p ~/.config/nvim/tmp/undo
+set backupdir=~/.config/nvim/tmp/backup,.
+set directory=~/.config/nvim/tmp/backup,.
+if has('persistent_undo')
+	set undofile
+	set undodir=~/.config/nvim/tmp/undo,.
+endif
+"set colorcolumn=80
+set updatetime=1000
 "inoremap ' ''<ESC>i
 "inoremap " ""<ESC>i
 "inoremap ( ()<ESC>i
 "inoremap [ []<ESC>i
 "inoremap { {<CR>}<ESC>O
+" ===
+" === Terminal
+" ===
+"let g:neoterm_autoscroll = 1
+
+" ===
+" === Basic Mappings
+" ===
+
 map ql :set splitright<CR> :vsplit<CR>
 map qh :set nosplitright<CR> :vsplit<CR>
 map qj :set splitbelow<CR> :split<CR>
@@ -69,8 +101,13 @@ let &t_EI = "\<ESC>]50;CursorShape=0\x7"
 
 "hi NonText ctermbg = NONE
 "hi Normal guibg = NONE ctermbg =NONE
+"
+"Opening up a terminal
+noremap <LEADER>t :term<CR>
 
-" compile 
+" ===
+" === Compile 
+" ===
 map r :call CompileRunGcc()<CR>
 func! CompileRunGcc()
 	exec "w"
@@ -95,6 +132,10 @@ func! CompileRunGcc()
 		exec "!firefox % &"
 	elseif &filetype == 'markdown'
 		exec "MarkdownPreview"
+	elseif &filetype == 'go'
+		set splitbelow
+		:sp
+		:term go run %
 	endif
 endfunc
 
@@ -121,7 +162,18 @@ Plug 'iamcco/markdown-preview.vim'
 Plug 'Xuyuanp/nerdtree-git-plugin'
 " Use release branch (Recommend)
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
+Plug 'Chiel92/vim-autoformat'
 Plug 'mhinz/vim-startify'
+" Go
+Plug 'fatih/vim-go' , { 'for': ['go', 'vim-plug'], 'tag': '*' }
+" Python
+Plug 'tmhedberg/SimpylFold', { 'for' :['python', 'vim-plug'] }
+Plug 'Vimjas/vim-python-pep8-indent', { 'for' :['python', 'vim-plug'] }
+"Plug 'numirias/semshi', { 'do': ':UpdateRemotePlugins', 'for' :['python', 'vim-plug'] }
+Plug 'tweekmonster/braceless.vim'
+" Input Method auto switch
+"Plug 'rlue/vim-barbaric'
+
 call plug#end()
 " ===Snazzy
 "colorscheme koehler
@@ -181,6 +233,13 @@ set shortmess+=c
 
 " always show signcolumns
 set signcolumn=yes
+" fix the most annoying bug that coc has
+silent! au BufEnter,BufRead,BufNewFile * silent! unmap if
+
+
+let g:coc_global_extensions = ['coc-snippets', 'coc-pairs', 'coc-eslint', 'coc-python', 'coc-vimlsp', 'coc-html', 'coc-json', 'coc-css', 'coc-tsserver', 'coc-yank', 'coc-lists', 'coc-gitignore' , 'coc-vimlsp' , 'coc-tailwindcss' , 'coc-stylelint' , 'coc-go']
+	
+set statusline^=%{coc#status()}%{get(b:,'coc_current_function','')}
 
 " Use tab for trigger completion with characters ahead and navigate.
 " Use command ':verbose imap <tab>' to make sure tab is not mapped by other plugin.
@@ -226,7 +285,7 @@ function! s:show_documentation()
 endfunction
 
 " Highlight symbol under cursor on CursorHold
-autocmd CursorHold * silent call CocActionAsync('highlight')
+"autocmd CursorHold * silent call CocActionAsync('highlight')
 
 " Remap for rename current word
 nmap <leader>rn <Plug>(coc-rename)
@@ -291,3 +350,36 @@ nnoremap <silent> <space>j  :<C-u>CocNext<CR>
 nnoremap <silent> <space>k  :<C-u>CocPrev<CR>
 " Resume latest coc list
 nnoremap <silent> <space>p  :<C-u>CocListResume<CR>
+
+" ===
+" === vim-go
+" ===
+let g:go_template_autocreate = 0
+let g:go_textobj_enabled = 0
+let g:go_auto_type_info = 1
+"let g:go_def_mapping_enabled = 1
+let g:go_highlight_array_whitespace_error    = 1
+let g:go_highlight_build_constraints         = 1
+let g:go_highlight_chan_whitespace_error     = 1
+let g:go_highlight_extra_types               = 1
+let g:go_highlight_fields                    = 1
+let g:go_highlight_format_strings            = 1
+let g:go_highlight_function_calls            = 1
+let g:go_highlight_function_parameters       = 1
+let g:go_highlight_functions                 = 1
+let g:go_highlight_generate_tags             = 1
+let g:go_highlight_methods                   = 1
+let g:go_highlight_operators                 = 1
+let g:go_highlight_space_tab_error           = 1
+let g:go_highlight_string_spellcheck         = 1
+let g:go_highlight_structs                   = 1
+let g:go_highlight_trailing_whitespace_error = 1
+let g:go_highlight_types                     = 1
+let g:go_highlight_variable_assignments      = 0
+let g:go_highlight_variable_declarations     = 0
+
+" ===
+" === AutoFormat
+" ===
+nnoremap  <leader> <C-f>:Autoformat<CR>
+
