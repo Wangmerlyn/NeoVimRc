@@ -29,6 +29,8 @@
          }
        }
     }
-	}
+	},
+	 "coc.preferences.formatOnSaveFiletypes": ["css", "Markdown"]
+
 }
 
